@@ -502,3 +502,9 @@
   margin-right: 0px;
   margin-left: 0px;
 }
+
+
+#spatialMap {
+	height: 350px;
+	width: 100%;
+}

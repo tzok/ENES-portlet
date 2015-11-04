@@ -20,7 +20,9 @@
 --%>
 
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
+<%@ taglib uri="http://liferay.com/tld/theme" prefix="theme" %>
 
+<theme:defineObjects />
 <portlet:defineObjects />
 
 <script type="text/javascript">
@@ -28,19 +30,17 @@
 	 * All the web app needs to configure are the following
 	 */
 	var webapp_settings = {
-		apiserver_host : 'localhost',
+		apiserver_host : 'sgw.indigo-datacloud.eu',
 		apiserver_port : '7777',
 		apiserver_ver : 'v1.0',
-		username : 'brunor',
+		username : '<%= user.getScreenName() %>',
 		app_id : 1
 	};
 	/*
 	 * Change variable below to change delay of check status loop
 	 */
 	var TimerDelay = 15000;
-	/*
-	 * Adds the i-th job record
-	 */
+		
 </script>
 <ul class="nav nav-tabs nav-pills" role="tablist">
 	<li role="presentation" class="active"><a href="#submit"
@@ -162,7 +162,8 @@
 					</div>
 
 					<div class="row">
-						<div class="col-md12">This is the map
+						<div class="col-md12">
+							<div id="spatialMap"></div>
 						</div>
 					</div>
 				</div>
@@ -171,7 +172,7 @@
 				<div class="col-md-7"></div>
 				<div class="col-md-4">
 					<button type="button" class="btn btn-primary btn-lg" id="openmodal"
-						onClick="openModal()">Submit the analysis</button>
+						onClick="openModal()">Run the analysis</button>
 				</div>
 			</div>
 		</div>

@@ -7,6 +7,7 @@
 		<icon>/icon.png</icon>
 		<header-portlet-css>/css/main.css</header-portlet-css>
 		<header-portlet-css>/css/bootstrap-slider.min.css</header-portlet-css>
+		<header-portal-javascript>https://maps.googleapis.com/maps/api/js</header-portal-javascript>
 		<footer-portlet-javascript>/js/jquery.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/jquery.tablesorter.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/bootstrap.min.js</footer-portlet-javascript>

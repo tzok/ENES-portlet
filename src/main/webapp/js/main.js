@@ -18,6 +18,9 @@
  * limitations under the License.
  */
 
+/*
+ * Adds the i-th job record
+ */
 function addJobRecord(i, jrec) {
 	job_id = jrec.id;
 	job_status = jrec.status;
@@ -303,9 +306,17 @@ $(document).ready(
 						$job_id = $('#job_id').attr('data-value');
 						cleanJob($job_id);
 					});
-//			prepareJobTable(); // Fills the job table
-//			setTimeout(checkJobs, TimerDelay); // Initialize the job check loop
+			prepareJobTable(); // Fills the job table
+			setTimeout(checkJobs, TimerDelay); // Initialize the job check loop
 			$("#percentile").slider({});
 			$("#temporalScenario").slider({});
 			$("#temporalHistorical").slider({});
+			
+			var map;
+			
+			map = new google.maps.Map(document.getElementById('spatialMap'), {
+			    center: {lat: 37.553593, lng: 15.068971},
+			    zoom: 2
+			});
+
 		});
