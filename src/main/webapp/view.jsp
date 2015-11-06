@@ -79,8 +79,8 @@
 								<label for="scenario">Scenario</label>
 								<select id="scenario"
 									class="form-control">
-									<option value="RCP4.5">RCP4.5</option>
-									<option value="RCP8.5">RCP8.5</option>
+									<option value="rcp45">RCP4.5</option>
+									<option value="rcp85">RCP8.5</option>
 								</select>
 							</div>
 						</div>
@@ -91,9 +91,9 @@
 								<label for="frequency">Frequency</label>
 								<select id="frequency"
 									class="form-control">
-									<option>3h</option>
+									<option>day</option>
 									<option>6h</option>
-									<option>daily</option>
+									<option>3h</option>
 								</select>
 							</div>
 						</div>

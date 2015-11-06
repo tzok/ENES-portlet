@@ -275,20 +275,29 @@ function openModal() {
  * submit() function
  */
 function submitJob() {
+	var job_arguments = new Array();
+	var output_1 = new Object();
+	
 	job_usrdesc = $('#jobDescription').val();
+	
+	if($('#analysis').val() === "Trend analysis"){
+		job_arguments.push("./precip_trend_analysis.json");
+	}
+	job_arguments.push("4");
+	job_arguments.push($('#model').val());
+	job_arguments.push($('#scenario').val());
+	job_arguments.push($('#frequency').val());
+	job_arguments.push(($('#percentile').val().valueOf()/10).toSring());
+	job_arguments.push($('#temporalHistorical').val().replace(",","_"));
+	job_arguments.push($('#temporalScenario').val().replace(",","_"));
+	job_arguments.push("30:45|0:40 /data/repository /home/sysm01/INDIGO");
+
+	output_1.name = "precip_trend_analysis.png";
+	
 	job_desc = {
 		application : webapp_settings.app_id,
 		description : job_usrdesc,
-		arguments: [
-		            $('#analysis').val(),
-		            $('#model').val(),
-		            $('#scenario').val(),
-		            $('#frequency').val(),
-		            $('#percentile').val(),
-		            $('#temporalScenario').val(),
-		            $('#temporalHistorical').val(),
-		            $('input[type="radio"][name="subset"]:checked').val()		            
-		            ],
+		arguments: job_arguments,
 		output_files : [],
 		input_files : []
 	};
