@@ -40,9 +40,7 @@ function addJobRecord(i, jrec) {
 				+ '</button>';
 		for (var j = 0; j < out_files.length; j++)
 			OutFiles += '<div class="row">' + '  <div class="col-sm-3">'
-					+ '  <a href="http://' + webapp_settings.apiserver_host
-					+ ':' + webapp_settings.apiserver_port + '/'
-					+ webapp_settings.apiserver_ver + '/' + out_files[j].url
+					+ '  <a href="' + webapp_settings.apiserver_base_url + '/' + out_files[j].url
 					+ '">' + out_files[j].name + '</a>' + '  </div>'
 					+ '  <div class="col-sm-3">' + '  </div>'
 					+ '  <div class="col-sm-3">' + '  </div>' + '</div>';
@@ -75,9 +73,7 @@ function addJobRecord(i, jrec) {
 function cleanJob(job_id) {
 	$.ajax({
 		type : "DELETE",
-		url : 'http://' + webapp_settings.apiserver_host + ':'
-				+ webapp_settings.apiserver_port + '/'
-				+ webapp_settings.apiserver_ver + '/tasks/' + job_id,
+		url : webapp_settings.apiserver_base_url + '/tasks/' + job_id,
 		dataType : "json",
 		success : function(data) {
 			$('#confirmJobDel').hide();
@@ -148,9 +144,7 @@ function prepareJobTable() {
 	$('#jobsDiv').html('');
 	$.ajax({
 		type : "GET",
-		url : 'http://' + webapp_settings.apiserver_host + ':'
-				+ webapp_settings.apiserver_port + '/'
-				+ webapp_settings.apiserver_ver + '/tasks?user='
+		url : webapp_settings.apiserver_base_url + '/tasks?user='
 				+ webapp_settings.username + '&app_id='
 				+ webapp_settings.app_id,
 		dataType : "json",
@@ -183,9 +177,7 @@ function submit(job_desc) {
 	$('#modal-content').html('');
 	// 1st call to register job
 	$.ajax({
-		url : 'http://' + webapp_settings.apiserver_host + ':'
-				+ webapp_settings.apiserver_port + '/'
-				+ webapp_settings.apiserver_ver + '/tasks?user='
+		url : webapp_settings.apiserver_base_url + '/tasks?user='
 				+ webapp_settings.username,
 		type : "POST",
 		cache : false,
@@ -195,9 +187,7 @@ function submit(job_desc) {
 		success : function(data) {
 			// 2nd call finalize and start submission
 			$.ajax({
-				url : 'http://' + webapp_settings.apiserver_host + ':'
-						+ webapp_settings.apiserver_port + '/'
-						+ webapp_settings.apiserver_ver + '/tasks/' + data.id
+				url : webapp_settings.apiserver_base_url + '/tasks/' + data.id
 						+ '/input?user=' + webapp_settings.username,
 				type : "POST",
 				cache : false,
@@ -233,9 +223,7 @@ function checkJobs() {
 					if (status != 'DONE' && status != 'FAILED'
 							&& status != 'ABORT')
 						$.ajax({
-							url : 'http://' + webapp_settings.apiserver_host
-									+ ':' + webapp_settings.apiserver_port
-									+ '/' + webapp_settings.apiserver_ver
+							url : webapp_settings.apiserver_base_url
 									+ '/tasks/' + row.id + '?user='
 									+ webapp_settings.username,
 							type : "GET",
@@ -266,10 +254,21 @@ function openModal() {
 	var datetime = currentdate.getDate() + "/" + (currentdate.getMonth() + 1)
 			+ "/" + currentdate.getFullYear() + " @ " + currentdate.getHours()
 			+ ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+	
+	$('#recap-analysis').html($('#analysis').val());
+	$('#recap-model').html($('#model').val());
+	$('#recap-scenario').html($('#scenario').val());
+    $('#recap-frequency').html($('#frequency').val());
+    $('#recap-percentile').html($('#percentile').val());
+    $('#recap-temporalScenario').html($('#temporalScenario').val());
+    $('#recap-temporalHistorical').html($('#temporalHistorical').val());
+    $('#recap-spatial').html($('input[type="radio"][name="subset"]:checked').val());
+
+	
 	$('#submitButton').show();
 	$('#modal-content').html('');
 	$('#jobDescription').val('Hello tester job desc ' + datetime);
-	$("#helloTesterModal").modal();
+	$("#enesModal").modal();
 }
 /*
  * App specific job submission call; Just prepare the job_desc and call the
@@ -280,6 +279,16 @@ function submitJob() {
 	job_desc = {
 		application : webapp_settings.app_id,
 		description : job_usrdesc,
+		arguments: [
+		            $('#analysis').val(),
+		            $('#model').val(),
+		            $('#scenario').val(),
+		            $('#frequency').val(),
+		            $('#percentile').val(),
+		            $('#temporalScenario').val(),
+		            $('#temporalHistorical').val(),
+		            $('input[type="radio"][name="subset"]:checked').val()		            
+		            ],
 		output_files : [],
 		input_files : []
 	};

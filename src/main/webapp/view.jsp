@@ -30,9 +30,7 @@
 	 * All the web app needs to configure are the following
 	 */
 	var webapp_settings = {
-		apiserver_host : 'sgw.indigo-datacloud.eu',
-		apiserver_port : '7777',
-		apiserver_ver : 'v1.0',
+		apiserver_base_url : 'https://sgw.indigo-datacloud.eu/apis/v1.0',
 		username : '<%= user.getScreenName() %>',
 		app_id : 1
 	};
@@ -58,7 +56,9 @@
 							<div class="form-group">
 								<label for="analysis">Analysis</label> <select id="analysis"
 									class="form-control">
-									<option>Precipitation trend analysis</option>
+									<option value="Trend analysis">Trend analysis</option>
+									<option value="Anomalies analysis">Anomalies analysis</option>
+									<option value="Climate change signal analysis">Climate change signal analysis</option>
 								</select>
 							</div>
 						</div>
@@ -79,7 +79,8 @@
 								<label for="scenario">Scenario</label>
 								<select id="scenario"
 									class="form-control">
-									<option>RCP8.5</option>
+									<option value="RCP4.5">RCP4.5</option>
+									<option value="RCP8.5">RCP8.5</option>
 								</select>
 							</div>
 						</div>
@@ -179,7 +180,7 @@
 
 		<!-- Submit record table (end) -->
 		<!-- Modal (begin) -->
-		<div class="modal fade" id="helloTesterModal" tabindex="-1"
+		<div class="modal fade" id="enesModal" tabindex="-1"
 			role="dialog" aria-labelledby="HelloTester">
 			<div class="modal-dialog modal-lg" role="document">
 				<div class="modal-content">
@@ -188,35 +189,36 @@
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
-						<h4 class="modal-title" id="myModalLabel">Hello tester
-							submission pane</h4>
+						<h4 class="modal-title" id="myModalLabel">ENES Application
+							submission</h4>
 					</div>
 					<div class="modal-body">
-						<p>Welcome to the 1st web application testing the new
-							FutureGateway APIs.</p>
-						<p>This application just execute over SSH a simple hostname
-							command.</p>
-						<p>
-							Please press <b>'submit'</b> button to execute the 'Hello'
-							application.
-						</p>
-						<p>Press cancel to return to the Hello' home/summary page.</p>
+						<h5>Application parameters summary</h5>
+						<ul class="list-group">
+							<li class="list-group-item"><b>Analysis:</b> <i id="recap-analysis"></i></li>
+							<li class="list-group-item"><b>Model:</b> <i id="recap-model"></i></li>
+							<li class="list-group-item"><b>Scenario:</b> <i id="recap-scenario"></i></li>
+							<li class="list-group-item"><b>Frequency:</b> <i id="recap-frequency"></i></li>
+							<li class="list-group-item"><b>Percentile:</b> <i id="recap-percentile"></i></li>
+							<li class="list-group-item"><b>Temporal Subset Scenario:</b> <i id="recap-temporalScenario"></i></li>
+							<li class="list-group-item"><b>Temporal Subset Historical:</b> <i id="recap-temporalHistorical"></i></li>
+							<li class="list-group-item"><b>Spatial Subset:</b> <i id="recap-spatial"></i></li>
+						</ul>
 						<p>
 							<b>Specify your job identifier: </b> <input type="text"
 								id="jobDescription" size="60" />
 						</p>
+						<p>Press Close to return to the page or Submit to execute the application.</p>
 						<!-- This is not shown properly
                 <div class="modal-content" id="modal-content">
                 </div>
                 -->
 					</div>
-					<div class="modal-footer">
-						<center>
+					<div class="modal-footer centre-footer">
 							<button type="button" class="btn btn-default"
 								data-dismiss="modal">Close</button>
 							<button type="button" class="btn btn-primary"
 								onClick="submitJob()" id="submitButton">Submit</button>
-						</center>
 					</div>
 				</div>
 			</div>
