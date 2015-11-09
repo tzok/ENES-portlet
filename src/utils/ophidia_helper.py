@@ -16,30 +16,48 @@ def get_png(output_pointers,name,pwd,dst_output):
     """
 
     outfile = open(dst_output,'w')    
-    base_url=output_pointers['base_url']
+    base_url=output_pointers['base_url'].replace('http','https')
     workflow_id=output_pointers['workflow_id']
     session_id=output_pointers['session']
   
-    userpwd="%s:%s" %(name,pwd)
+    pwd=pwd.rstrip('\n')
     export_path="/export/misc/"
     png_name="/precip_trend_analysis.png"
-
-    #static_public="http://193.204.199.174/devel/ncl/"
+    cookie_string=""
 
     png_url=base_url+'/sessions.php/'+session_id+export_path+workflow_id+png_name
     print png_url
-    #png_url=static_public+png_name
-    #print png_url
+    
+    # we need two calls : first to get cookie, 2nd to actually download file
+    home_url=base_url+'/index.php'
+    
+    cookie_target=pycurl.Curl()
+    cookie_target.setopt(cookie_target.URL, str(home_url))
+    post_data = {'username':name, 'password':pwd, 'submit':'"login"'}
+    postfields = urlencode(post_data)
+    php_sess_id=path=""
+    cookie_target.setopt(cookie_target.POSTFIELDS, postfields)
+    cookie_target.setopt(pycurl.COOKIEJAR,'ophidia_cookie')
+    cookie_target.setopt(cookie_target.SSL_VERIFYPEER, 0)
+    #cookie_target.setopt(cookie_target.VERBOSE,True)
+    try :
+        cookie_target.perform()
+        result=cookie_target.getinfo(pycurl.HTTP_CODE)
+        cookie_target.close()
+    except pycurl.error as e:
+        err_msg="Failed auth on %s (pycurl %s) !\n-----\n" % (home_url, e)
+        sys.stderr.write(err_msg) # one day will be a log...
+        print err_msg
+        result="-1"
+        return result    
+    
 
     target=pycurl.Curl()
     target.setopt(target.URL, str(png_url))
     target.setopt(target.WRITEFUNCTION, outfile.write)
+    target.setopt(pycurl.COOKIEFILE,'ophidia_cookie')
     target.setopt(target.FOLLOWLOCATION, True)
     target.setopt(target.SSL_VERIFYPEER, 0)
-
-    #post_data = {'username': name, 'password':pwd, 'submit':" Login "}
-    #postfields = urlencode(post_data)
-    #target.setopt(target.POSTFIELDS, postfields)
 
     try:
         target.perform()
@@ -52,6 +70,8 @@ def get_png(output_pointers,name,pwd,dst_output):
         print err_msg
         result="-1"
         
+    os.remove('ophidia_cookie')
+
     if result == 200:
         return 0
     else:
