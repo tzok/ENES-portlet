@@ -301,15 +301,14 @@ function submitJob() {
 	if($('#analysis').val() === "Trend analysis"){
 		job_arguments.push("./precip_trend_analysis.json");
 	}
-	var oph_args = "4";
-	oph_args = oph_args.concat(" " + $('#model').val());
-	oph_args = oph_args.concat(" " + $('#scenario').val());
-	oph_args = oph_args.concat(" " + $('#frequency').val());
-	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf()/100));
-	oph_args = oph_args.concat(" " + $('#temporalHistorical').val().replace(",","_"));
-	oph_args = oph_args.concat(" " + $('#temporalScenario').val().replace(",","_"));
-	oph_args = oph_args.concat(" 30:45|0:40 /data/repository /home/sysm01/INDIGO");
-	job_arguments.push(oph_args);
+	job_arguments.push("4");
+	job_arguments.push($('#model').val());
+	job_arguments.push($('#scenario').val());
+	job_arguments.push($('#frequency').val());
+	job_arguments.push(($('#percentile').val().valueOf()/100).toSring());
+	job_arguments.push($('#temporalHistorical').val().replace(",","_"));
+	job_arguments.push($('#temporalScenario').val().replace(",","_"));
+	job_arguments.push("30:45|0:40 /data/repository /home/sysm01/INDIGO");
 
 	output_1.name = "precip_trend_analysis.png";
 	
