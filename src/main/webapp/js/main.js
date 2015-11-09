@@ -25,6 +25,7 @@ function addJobRecord(i, jrec) {
 	job_id = jrec.id;
 	job_status = jrec.status;
 	job_date = jrec.date;
+	job_lastchange  = jrec.last_change; 
 	job_description = jrec.description;
 	out_files = jrec.output_files;
 	var OutFiles = '';
@@ -81,7 +82,9 @@ function cleanJob(job_id) {
 			$('#confirmDelete').find('.modal-body p').text(
 					'Successfully removed job');
 			$('#jobTable').find('#' + job_id).next().remove();
-			$('#jobTable').find('#' + job_id).remove();
+			if(getNumJobs() > 0)
+				$('#jobTable').find('#'+job_id).remove();
+			else emptyJobTable();
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			alert(jqXHR.status);
@@ -106,7 +109,8 @@ function fillJobTable(data) {
 			+ '	<thead>'
 			+ '           <tr>'
 			+ '               <th></th>'
-			+ '                <th>Date</th>'
+			+ '                <th>Submitted</th>'
+			+ '                <th>Modified</th>'
 			+ '                <th>Status</th>'
 			+ '                <th>Description</th>'
 			+ '            </tr>'
@@ -137,11 +141,20 @@ function fillJobTable(data) {
 				return false;
 			});
 }
+
+/*
+ * Set empty job table             
+ */
+function emptyJobTable() {
+    $('#jobsDiv').html('<small>No jobs available yet</small>');
+}
+
 /*
  * Calls the API Server to generate the Jobs table
  */
 function prepareJobTable() {
 	$('#jobsDiv').html('');
+	$('#jobsDiv').attr('data-modify', 'false');
 	$.ajax({
 		type : "GET",
 		url : webapp_settings.apiserver_base_url + '/tasks?user='
@@ -149,7 +162,10 @@ function prepareJobTable() {
 				+ webapp_settings.app_id,
 		dataType : "json",
 		success : function(data) {
-			fillJobTable(data);
+			if(data.length>0)
+				fillJobTable(data);
+			else
+				emptyJobTable();
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			alert(jqXHR.status);
@@ -160,7 +176,7 @@ function prepareJobTable() {
  * Helper function returnin the number of jobs
  */
 function getNumJobs() {
-	return ($('#jobTable tr').size() - 1) / 2;
+	return  Math.floor(($('#jobTable tr').size()-1)/2);
 }
 /*
  * Function responsible of job submission
@@ -210,42 +226,44 @@ function submit(job_desc) {
 		}
 	});
 }
+
 /*
  * Function that checks for job status change
  */
-function checkJobs() {
-	$('#jobTable tr').each(
-			function(i, row) {
-				if (i > 0 // Starting after thead
-						&& i % 2 != 0 // Consider only odd rows (no childs)
-				) { // Consider only active states
-					status = row.cells[2].innerHTML;
-					if (status != 'DONE' && status != 'FAILED'
-							&& status != 'ABORT')
-						$.ajax({
-							url : webapp_settings.apiserver_base_url
-									+ '/tasks/' + row.id + '?user='
-									+ webapp_settings.username,
-							type : "GET",
-							cache : false,
-							contentType : "application/json; charset=utf-8",
-							success : function(data) {
-								if (data.status == 'DONE')
-									prepareJobTable();
-								else
-									$('#' + data.id).find("td").eq(2).html(
-											data.status);
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								console.log(jqXHR.status);
-							}
-						});
-				}
-			});
-	// Set timeout again for the next loop
-	setTimeout(checkJobs, TimerDelay);
-}
-
+function checkJobs() {                
+    $('#jobTable tr').each(function(i,row) {                    
+        if(   i>0                  // Starting after thead
+           && i%2!=0               // Consider only odd rows (no childs)
+          ) {                      // Consider only active states                        
+           jstatus=row.cells[3].innerHTML;                       
+           if(    jstatus != 'DONE'     
+              &&  jstatus != 'FAILED'
+              &&  jstatus != 'ABORT')                                                  
+                $.ajax({
+                        url:  webapp_settings.apiserver_base_url +'/tasks/'+row.id+'?user='
+                            +webapp_settings.username,                                                            
+                        type: "GET", 
+                        cache: false,                                
+                        contentType: "application/json; charset=utf-8",                                
+                        success: function(data) {
+                            jstatus=$('#'+data.id).find("td").eq(3).html();
+                            if(jstatus != data.jstatus) {
+                                if(data.status == 'DONE')
+                                    prepareJobTable();
+                                else 
+                                    $('#'+data.id).find("td").eq(3).html(data.status);                                          
+                                $('#jobsDiv').attr('data-modify', 'true');
+                            }
+                        }, 
+                        error: function(jqXHR, textStatus, errorThrown) {
+                                console.log(jqXHR.status);
+                        }
+                    });
+            }
+    });                
+    // Set timeout again for the next loop
+    setTimeout(checkJobs, TimerDelay);
+} 
 /*
  * Function that opens the submit modal frame
  */
@@ -283,14 +301,15 @@ function submitJob() {
 	if($('#analysis').val() === "Trend analysis"){
 		job_arguments.push("./precip_trend_analysis.json");
 	}
-	job_arguments.push("4");
-	job_arguments.push($('#model').val());
-	job_arguments.push($('#scenario').val());
-	job_arguments.push($('#frequency').val());
-	job_arguments.push(($('#percentile').val().valueOf()/10).toSring());
-	job_arguments.push($('#temporalHistorical').val().replace(",","_"));
-	job_arguments.push($('#temporalScenario').val().replace(",","_"));
-	job_arguments.push("30:45|0:40 /data/repository /home/sysm01/INDIGO");
+	var oph_args = "4";
+	oph_args = oph_args.concat(" " + $('#model').val());
+	oph_args = oph_args.concat(" " + $('#scenario').val());
+	oph_args = oph_args.concat(" " + $('#frequency').val());
+	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf()/10));
+	oph_args = oph_args.concat(" " + $('#temporalHistorical').val().replace(",","_"));
+	oph_args = oph_args.concat(" " + $('#temporalScenario').val().replace(",","_"));
+	oph_args = oph_args.concat(" 30:45|0:40 /data/repository /home/sysm01/INDIGO");
+	job_arguments.push(oph_args);
 
 	output_1.name = "precip_trend_analysis.png";
 	
@@ -302,6 +321,7 @@ function submitJob() {
 		input_files : []
 	};
 	submit(job_desc);
+	$('#enesModal').modal('toggle');
 }
 /*
  * Page initialization
@@ -329,12 +349,15 @@ $(document).ready(
 			$("#percentile").slider({});
 			$("#temporalScenario").slider({});
 			$("#temporalHistorical").slider({});
-			
-			var map;
-			
-			map = new google.maps.Map(document.getElementById('spatialMap'), {
-			    center: {lat: 37.553593, lng: 15.068971},
-			    zoom: 2
-			});
+			initMap();
+		}
+);
 
-		});
+var map;
+function initMap() {
+  map = new google.maps.Map(document.getElementById('spatialMap'), {
+    center: {lat: 37.553593, lng: 15.068971},
+    zoom: 2
+  });
+}
+

@@ -7,12 +7,12 @@
 		<icon>/icon.png</icon>
 		<header-portlet-css>/css/main.css</header-portlet-css>
 		<header-portlet-css>/css/bootstrap-slider.min.css</header-portlet-css>
-		<header-portal-javascript>https://maps.googleapis.com/maps/api/js</header-portal-javascript>
 		<footer-portlet-javascript>/js/jquery.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/jquery.tablesorter.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/bootstrap.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/bootstrap-slider.min.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/js/main.js</footer-portlet-javascript>
+		<footer-portlet-javascript>https://maps.googleapis.com/maps/api/js?key=AIzaSyCAGTELQA7O6Rswx7_jyZ_pyvbfZH8JQG4</footer-portlet-javascript>
 	</portlet>
 	<role-mapper>
 		<role-name>administrator</role-name>
