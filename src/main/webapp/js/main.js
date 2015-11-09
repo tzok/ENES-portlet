@@ -305,7 +305,7 @@ function submitJob() {
 	oph_args = oph_args.concat(" " + $('#model').val());
 	oph_args = oph_args.concat(" " + $('#scenario').val());
 	oph_args = oph_args.concat(" " + $('#frequency').val());
-	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf()/10));
+	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf()/100));
 	oph_args = oph_args.concat(" " + $('#temporalHistorical').val().replace(",","_"));
 	oph_args = oph_args.concat(" " + $('#temporalScenario').val().replace(",","_"));
 	oph_args = oph_args.concat(" 30:45|0:40 /data/repository /home/sysm01/INDIGO");
