@@ -305,7 +305,7 @@ function submitJob() {
 	job_arguments.push($('#model').val());
 	job_arguments.push($('#scenario').val());
 	job_arguments.push($('#frequency').val());
-	job_arguments.push(($('#percentile').val().valueOf()/100).toSring());
+	job_arguments.push($('#percentile').val().valueOf()/100);
 	job_arguments.push($('#temporalHistorical').val().replace(",","_"));
 	job_arguments.push($('#temporalScenario').val().replace(",","_"));
 	job_arguments.push("30:45|0:40 /data/repository /home/sysm01/INDIGO");
