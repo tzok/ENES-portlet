@@ -38,6 +38,8 @@
 	 * Change variable below to change delay of check status loop
 	 */
 	var TimerDelay = 15000;
+	
+	var context = '<%=request.getContextPath()%>';
 		
 </script>
 <ul class="nav nav-tabs nav-pills" role="tablist">
@@ -79,8 +81,8 @@
 								<label for="scenario">Scenario</label>
 								<select id="scenario"
 									class="form-control">
-									<option value="rcp45">RCP4.5</option>
 									<option value="rcp85">RCP8.5</option>
+									<option value="rcp45" disabled="disabled">RCP4.5</option>
 								</select>
 							</div>
 						</div>						
@@ -189,7 +191,7 @@
 							aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
-						<h4 class="modal-title" id="myModalLabel">ENES Application
+						<h4 class="modal-title" id="myModalLabel">Application
 							submission</h4>
 					</div>
 					<div class="modal-body">
@@ -208,7 +210,6 @@
 							<b>Specify your job identifier: </b> <input type="text"
 								id="jobDescription" size="60" />
 						</p>
-						<p>Press Close to return to the page or Submit to execute the application.</p>
 						<!-- This is not shown properly
                 <div class="modal-content" id="modal-content">
                 </div>
@@ -216,7 +217,7 @@
 					</div>
 					<div class="modal-footer centre-footer">
 							<button type="button" class="btn btn-default"
-								data-dismiss="modal">Close</button>
+								data-dismiss="modal">Cancel</button>
 							<button type="button" class="btn btn-primary"
 								onClick="submitJob()" id="submitButton">Submit</button>
 					</div>
@@ -224,10 +225,15 @@
 			</div>
 		</div>
 		<!-- Modal (end) -->
+	</div>
+	<div role="tabpanel" class="tab-pane fade" id="status">
+		<!-- Submit record table (begin) -->
+		<div id="jobsDiv" data-modify="false"></div>
+		
 		<!-- Confirm Modal Dialog (begin) -->
 
-		<div class="modal fade" id="confirmDelete" role="dialog"
-			aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+		<div class="modal fade" id="confirmDelete" role="dialog" tabindex="-1"
+			aria-labelledby="confirmDeleteLabel">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -247,9 +253,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div role="tabpanel" class="tab-pane fade" id="status">
-		<!-- Submit record table (begin) -->
-		<div id="jobsDiv" data-modify="false"></div>
 	</div>
 </div>

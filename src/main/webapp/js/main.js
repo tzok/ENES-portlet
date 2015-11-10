@@ -25,7 +25,7 @@ function addJobRecord(i, jrec) {
 	job_id = jrec.id;
 	job_status = jrec.status;
 	job_date = jrec.date;
-	job_lastchange  = jrec.last_change; 
+	job_lastchange = jrec.last_change;
 	job_description = jrec.description;
 	out_files = jrec.output_files;
 	var OutFiles = '';
@@ -59,15 +59,16 @@ function addJobRecord(i, jrec) {
 				+ '" class="btn btn-default btn-xs toggle">'
 				+ '        <span class="glyphicon glyphicon-eye-open"></span>'
 				+ '        </button>' + '	</td>' + '  <td>' + job_date
-				+ '</td>' + '	<td>' + job_status + '</td>' + '	<td>'
-				+ job_description + '</td>' + '</tr>'
-				+ '<tr class="tablesorter-childRow">' + '<td colspan="4">'
-				+ '<div class="row">'
+				+ '</td>' + '  <td>' + job_lastchange + '</td>' + '  <td>'
+				+ job_status + '</td>' + '  <td>' + job_description + '</td>'
+				+ '</tr>' + '<tr class="tablesorter-childRow">'
+				+ '<td colspan="4">' + '<div class="row">'
 				+ '  <div class="col-sm-3"><b>Output</b></div>'
 				+ '  <div class="col-sm-3"></div>' + '  <div class="col-sm-3">'
 				+ del_btn + '</div>' + '</div>' + OutFiles + '</td>' + '</tr>';
 	return TableRow;
 }
+
 /*
  * Clean the specified job
  */
@@ -82,9 +83,10 @@ function cleanJob(job_id) {
 			$('#confirmDelete').find('.modal-body p').text(
 					'Successfully removed job');
 			$('#jobTable').find('#' + job_id).next().remove();
-			if(getNumJobs() > 0)
-				$('#jobTable').find('#'+job_id).remove();
-			else emptyJobTable();
+			if (getNumJobs() > 0)
+				$('#jobTable').find('#' + job_id).remove();
+			else
+				emptyJobTable();
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			alert(jqXHR.status);
@@ -143,10 +145,10 @@ function fillJobTable(data) {
 }
 
 /*
- * Set empty job table             
+ * Set empty job table
  */
 function emptyJobTable() {
-    $('#jobsDiv').html('<small>No jobs available yet</small>');
+	$('#jobsDiv').html('<small>No jobs available yet</small>');
 }
 
 /*
@@ -162,7 +164,7 @@ function prepareJobTable() {
 				+ webapp_settings.app_id,
 		dataType : "json",
 		success : function(data) {
-			if(data.length>0)
+			if (data.length > 0)
 				fillJobTable(data);
 			else
 				emptyJobTable();
@@ -176,7 +178,7 @@ function prepareJobTable() {
  * Helper function returnin the number of jobs
  */
 function getNumJobs() {
-	return  Math.floor(($('#jobTable tr').size()-1)/2);
+	return Math.floor(($('#jobTable tr').size() - 1) / 2);
 }
 /*
  * Function responsible of job submission
@@ -230,59 +232,65 @@ function submit(job_desc) {
 /*
  * Function that checks for job status change
  */
-function checkJobs() {                
-    $('#jobTable tr').each(function(i,row) {                    
-        if(   i>0                  // Starting after thead
-           && i%2!=0               // Consider only odd rows (no childs)
-          ) {                      // Consider only active states                        
-           jstatus=row.cells[3].innerHTML;                       
-           if(    jstatus != 'DONE'     
-              &&  jstatus != 'FAILED'
-              &&  jstatus != 'ABORT')                                                  
-                $.ajax({
-                        url:  webapp_settings.apiserver_base_url +'/tasks/'+row.id+'?user='
-                            +webapp_settings.username,                                                            
-                        type: "GET", 
-                        cache: false,                                
-                        contentType: "application/json; charset=utf-8",                                
-                        success: function(data) {
-                            jstatus=$('#'+data.id).find("td").eq(3).html();
-                            if(jstatus != data.jstatus) {
-                                if(data.status == 'DONE')
-                                    prepareJobTable();
-                                else 
-                                    $('#'+data.id).find("td").eq(3).html(data.status);                                          
-                                $('#jobsDiv').attr('data-modify', 'true');
-                            }
-                        }, 
-                        error: function(jqXHR, textStatus, errorThrown) {
-                                console.log(jqXHR.status);
-                        }
-                    });
-            }
-    });                
-    // Set timeout again for the next loop
-    setTimeout(checkJobs, TimerDelay);
-} 
+function checkJobs() {
+	$('#jobTable tr').each(
+			function(i, row) {
+				if (i > 0 // Starting after thead
+						&& i % 2 != 0 // Consider only odd rows (no childs)
+				) { // Consider only active states
+					jstatus = row.cells[3].innerHTML;
+					if (jstatus != 'DONE' && jstatus != 'FAILED'
+							&& jstatus != 'ABORT')
+						$.ajax({
+							url : webapp_settings.apiserver_base_url
+									+ '/tasks/' + row.id + '?user='
+									+ webapp_settings.username,
+							type : "GET",
+							cache : false,
+							contentType : "application/json; charset=utf-8",
+							success : function(data) {
+								jstatus = $('#' + data.id).find("td").eq(3)
+										.html();
+								if (jstatus != data.jstatus) {
+									if (data.status == 'DONE')
+										prepareJobTable();
+									else
+										$('#' + data.id).find("td").eq(3).html(
+												data.status);
+									$('#jobsDiv').attr('data-modify', 'true');
+								}
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								console.log(jqXHR.status);
+							}
+						});
+				}
+			});
+	// Set timeout again for the next loop
+	setTimeout(checkJobs, TimerDelay);
+}
 /*
  * Function that opens the submit modal frame
  */
 function openModal() {
 	var currentdate = new Date();
-	var datetime = currentdate.getDate() + "/" + (currentdate.getMonth() + 1)
-			+ "/" + currentdate.getFullYear() + " @ " + currentdate.getHours()
-			+ ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
-	
+	var datetime = ('0' + currentdate.getDate()).slice(-2) + "/" 
+	             + ('0' + (currentdate.getMonth() + 1)).slice(-2) + "/"
+	             + currentdate.getFullYear() + " @ "
+	             + ('0' + currentdate.getHours()).slice(-2)	+ ":"
+	             + ('0' + currentdate.getMinutes()).slice(-2) + ":"
+	             + ('0' + currentdate.getSeconds()).slice(-2);
+
 	$('#recap-analysis').html($('#analysis').val());
 	$('#recap-model').html($('#model').val());
 	$('#recap-scenario').html($('#scenario').val());
-    $('#recap-frequency').html($('#frequency').val());
-    $('#recap-percentile').html($('#percentile').val());
-    $('#recap-temporalScenario').html($('#temporalScenario').val());
-    $('#recap-temporalHistorical').html($('#temporalHistorical').val());
-    $('#recap-spatial').html($('input[type="radio"][name="subset"]:checked').val());
+	$('#recap-frequency').html($('#frequency').val());
+	$('#recap-percentile').html($('#percentile').val());
+	$('#recap-temporalScenario').html($('#temporalScenario').val());
+	$('#recap-temporalHistorical').html($('#temporalHistorical').val());
+	$('#recap-spatial').html(
+			$('input[type="radio"][name="subset"]:checked').val());
 
-	
 	$('#submitButton').show();
 	$('#modal-content').html('');
 	$('#jobDescription').val('Hello tester job desc ' + datetime);
@@ -295,34 +303,38 @@ function openModal() {
 function submitJob() {
 	var job_arguments = new Array();
 	var output_1 = new Object();
-	
+
 	job_usrdesc = $('#jobDescription').val();
-	
-	if($('#analysis').val() === "Trend analysis"){
+
+	if ($('#analysis').val() === "Trend analysis") {
 		job_arguments.push("./precip_trend_analysis.json");
 	}
-	
+
 	var oph_args = "\"4";
 	oph_args = oph_args.concat(" " + $('#model').val());
 	oph_args = oph_args.concat(" " + $('#scenario').val());
 	oph_args = oph_args.concat(" " + $('#frequency').val());
-	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf()/100));
-	oph_args = oph_args.concat(" " + $('#temporalHistorical').val().replace(",","_"));
-	oph_args = oph_args.concat(" " + $('#temporalScenario').val().replace(",","_"));
-	oph_args = oph_args.concat(" 30:45|0:40 /data/repository /home/sysm01/INDIGO\"");
+	oph_args = oph_args.concat(" " + ($('#percentile').val().valueOf() / 100));
+	oph_args = oph_args.concat(" "
+			+ $('#temporalHistorical').val().replace(",", "_"));
+	oph_args = oph_args.concat(" "
+			+ $('#temporalScenario').val().replace(",", "_"));
+	oph_args = oph_args
+			.concat(" -90:90|0:360 /data/repository /home/sysm01/INDIGO\"");
 	job_arguments.push(oph_args);
 
-	output_1.name = "precip_trend_analysis.png";
-	
+	output_1.name = "out.png";
+
 	job_desc = {
 		application : webapp_settings.app_id,
 		description : job_usrdesc,
-		arguments: job_arguments,
-		output_files : [],
+		arguments : job_arguments,
+		output_files : [ "out.png" ],
 		input_files : []
 	};
 	submit(job_desc);
 	$('#enesModal').modal('toggle');
+	$('.nav-tabs a[href="#status"]').tab('show');
 }
 /*
  * Page initialization
@@ -336,8 +348,8 @@ $(document).ready(
 				$job_id = $(e.relatedTarget).attr('data-data');
 				$(this).find('.modal-title').text($title);
 				$('#job_id').attr('data-value', $job_id)
+				$('#cancelJobDel').text('Cancel');
 				$('#confirmJobDel').show();
-				$('#cancelJobDel').text('Cancel')
 			});
 			// Form confirm (yes/ok) handler, submits form
 			$('#confirmDelete').find('.modal-footer #confirmJobDel').on(
@@ -351,14 +363,34 @@ $(document).ready(
 			$("#temporalScenario").slider({});
 			$("#temporalHistorical").slider({});
 			initMap();
-		}
-);
+		});
 
 var map;
 function initMap() {
-  map = new google.maps.Map(document.getElementById('spatialMap'), {
-    center: {lat: 37.553593, lng: 15.068971},
-    zoom: 2
-  });
-}
+	map = new google.maps.Map(document.getElementById('spatialMap'), {
+		center : {
+			lat : 37.553593,
+			lng : 15.068971
+		},
+		zoom : 2,
+		draggable : false,
+		disableDoubleClickZoom : true,
+		scrollwheel : false,
+		zoomControl : false,
+		streetViewControl : false,
+		keyboardShortcuts : false,
+		mapTypeControl : false,
+		overviewMapControl : false
+	});
+	var imageBounds = {
+		north : 88.00000,
+		south : -88.00000,
+		east : 179.00000,
+		west : -162.00000
+	};
 
+	historicalOverlay = new google.maps.GroundOverlay(
+			context + '/images/BlackOverlay.png', imageBounds);
+	historicalOverlay.setOpacity(0.5);
+	historicalOverlay.setMap(map);
+}
