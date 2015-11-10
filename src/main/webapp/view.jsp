@@ -32,7 +32,7 @@
 	var webapp_settings = {
 		apiserver_base_url : 'https://sgw.indigo-datacloud.eu/apis/v1.0',
 		username : '<%= user.getScreenName() %>',
-		app_id : 1
+		app_id : 3
 	};
 	/*
 	 * Change variable below to change delay of check status loop
@@ -57,8 +57,8 @@
 								<label for="analysis">Analysis</label> <select id="analysis"
 									class="form-control">
 									<option value="Trend analysis">Trend analysis</option>
-									<option value="Anomalies analysis">Anomalies analysis</option>
-									<option value="Climate change signal analysis">Climate change signal analysis</option>
+									<option value="Anomalies analysis" disabled="disabled">Anomalies analysis</option>
+									<option value="Climate change signal analysis" disabled="disabled">Climate change signal analysis</option>
 								</select>
 							</div>
 						</div>
@@ -83,7 +83,7 @@
 									<option value="rcp85">RCP8.5</option>
 								</select>
 							</div>
-						</div>
+						</div>						
 					</div>
 					<div class="row">
 						<div class="col-md-12">
@@ -250,6 +250,6 @@
 	</div>
 	<div role="tabpanel" class="tab-pane fade" id="status">
 		<!-- Submit record table (begin) -->
-		<div id="jobsDiv"></div>
+		<div id="jobsDiv" data-modify="false"></div>
 	</div>
 </div>
