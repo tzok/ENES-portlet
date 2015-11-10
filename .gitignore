@@ -1,2 +1,6 @@
 .project
 target
+src/utils/temp-json-input.json
+src/utils/oph-credentials.txt
+src/utils/*OLD*
+
