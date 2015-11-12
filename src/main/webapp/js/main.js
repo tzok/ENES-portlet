@@ -293,7 +293,7 @@ function openModal() {
 
 	$('#submitButton').show();
 	$('#modal-content').html('');
-	$('#jobDescription').val('Hello tester job desc ' + datetime);
+	$('#jobDescription').val('Climate Model run ' + datetime);
 	$("#enesModal").modal();
 }
 /*
