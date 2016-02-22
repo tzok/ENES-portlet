@@ -160,7 +160,7 @@ function prepareJobTable() {
 	$.ajax({
 		type : "GET",
 		url : webapp_settings.apiserver_base_url + '/tasks?user='
-				+ webapp_settings.username + '&app_id='
+				+ webapp_settings.username + '&application='
 				+ webapp_settings.app_id,
 		dataType : "json",
 		success : function(data) {
