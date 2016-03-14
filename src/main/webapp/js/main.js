@@ -329,7 +329,7 @@ function submitJob() {
 		application : webapp_settings.app_id,
 		description : job_usrdesc,
 		arguments : job_arguments,
-		output_files : [ "out.png" ],
+		output_files : [ {"name":"out.png"} ],
 		input_files : []
 	};
 	submit(job_desc);
