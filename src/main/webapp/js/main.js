@@ -164,8 +164,8 @@ function prepareJobTable() {
 				+ webapp_settings.app_id,
 		dataType : "json",
 		success : function(data) {
-			if (data.length > 0)
-				fillJobTable(data);
+			if (data.tasks.length > 0)
+				fillJobTable(data.tasks);
 			else
 				emptyJobTable();
 		},
