@@ -1,115 +1,81 @@
-#!/usr/bin/python
+#! /usr/bin/env python2
+# coding=utf-8
 
-import os
-import sys
-import pycurl
-import json
+from __future__ import print_function
+
 import argparse
+import json
+import os
+import pycurl
+import urllib
 
 
-def get_png(output_pointers,name,pwd,dst_output):
-
-    from urllib import urlencode
-
+def get_png(workflow_details, user, password, png_name, output_path):
     """
-    Given base url, username and password, 
-    provides the output file 
+    Given base url, username and password,
+    provides the output file
     """
+    base_url = workflow_details['base_url'].replace('http', 'https')
+    session_id = workflow_details['session']
+    workflow_id = workflow_details['workflow_id']
+    png_url = base_url + '/sessions.php/' + session_id + "/export/misc/" + workflow_id + '/' + png_name
 
-    outfile = open(dst_output,'w')    
-    base_url=output_pointers['base_url'].replace('http','https')
-    workflow_id=output_pointers['workflow_id']
-    session_id=output_pointers['session']
-  
-    pwd=pwd.rstrip('\n')
-    export_path="/export/misc/"
-    png_name="/precip_trend_analysis.png"
-    cookie_string=""
+    post_data = {'username': user, 'password': password.rstrip('\n'), 'submit': '"login"'}
+    postfields = urllib.urlencode(post_data)
 
-    png_url=base_url+'/sessions.php/'+session_id+export_path+workflow_id+png_name
-    print png_url
-    
-    post_data = {'username':name, 'password':pwd, 'submit':'"login"'}
-    postfields = urlencode(post_data)
-    
-    target=pycurl.Curl()
-    target.setopt(target.URL, str(png_url))
-    target.setopt(target.WRITEFUNCTION, outfile.write)
-    target.setopt(target.POSTFIELDS, postfields)
-    target.setopt(pycurl.COOKIEJAR,'ophidia_cookie')
-    target.setopt(pycurl.COOKIEFILE,'ophidia_cookie')
-    #target.setopt(target.FOLLOWLOCATION, True)
-    target.setopt(target.SSL_VERIFYPEER, 0)
-
-    try:
+    with open(output_path, 'w') as output_file:
+        target = pycurl.Curl()
+        target.setopt(target.URL, str(png_url))
+        target.setopt(target.WRITEFUNCTION, output_file.write)
+        target.setopt(target.POSTFIELDS, postfields)
+        target.setopt(pycurl.COOKIEJAR, 'ophidia_cookie')
+        target.setopt(pycurl.COOKIEFILE, 'ophidia_cookie')
+        target.setopt(target.FOLLOWLOCATION, True)
+        target.setopt(target.SSL_VERIFYPEER, 0)
         target.perform()
-        result=target.getinfo(pycurl.HTTP_CODE)
+        result = target.getinfo(pycurl.HTTP_CODE)
         target.close()
 
-    except pycurl.error as e:
-        err_msg="Failed download on %s (pycurl %s) !\n-----\n" % (png_url, e)
-        sys.stderr.write(err_msg)
-        print err_msg
-        result="-1"
-        
     os.remove('ophidia_cookie')
-
-    if result == 200:
-        return 0
-    else:
-        return 1
+    return result == 200
 
 
-def grab_workflow(fileStream):
-
-    """ 
-    Parses json stream, to grab workflow and marker IDs 
+def get_workflow_details(file_stream, step):
     """
-    json_data=json.loads(fileStream)
-    response=json_data["response"]["response"]
-    values={'base_url':"",'session':-1,'workflow_id':-1,'marker_id':-1}
+    Parses json stream, to grab workflow and marker IDs
+    """
+    json_data = json.loads(file_stream)
+    response = json_data["response"]["response"]
+    workflow_status = response[0]['objcontent'][0]['message']
 
-    workflow_status=response[0]['objcontent'][0]['message']
     if workflow_status == "OPH_STATUS_COMPLETED":
-
-        workflow_responses=response[2]
-        content=workflow_responses["objcontent"]
-        rows=content[0]['rowvalues']
+        workflow_responses = response[2]
+        content = workflow_responses["objcontent"]
+        rows = content[0]['rowvalues']
 
         for r in rows:
-           if r[5] == "Create map":
+            if r[5] == step:
+                return {'base_url': r[0].split('/sessions')[0], 'session': r[1], 'workflow_id': r[2],
+                        'marker_id': r[3]}
 
-              values['base_url']=r[0].split('/sessions')[0]
-              values['session']=r[1]
-              values['workflow_id']=r[2]
-              values['marker_id']=r[3]
-              
-    return values
+    raise RuntimeError('Invalid JSON file')
+
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='This script parses Ophidia JSON output and grabs the PNG image')
+    parser.add_argument('json_input', help='Path to the JSON input file')
+    parser.add_argument('ophidia_step', help='Name of the Ophidia step where PNG is produced')
+    parser.add_argument('credentials', help='Path to the file containing username and password for Ophidia server')
+    parser.add_argument('png_name', help='Name of the remote PNG image')
+    parser.add_argument('output_file', help='Path to the PNG output file')
+    args = parser.parse_args()
 
-    parser= argparse.ArgumentParser (description='This script parses Ophidia JSON output and grabs the png image')
-    parser.add_argument('json_input',help='Path to the json input file')
-    parser.add_argument('oph_credentials',help='Path to the file containing username and password for Ophidia server')
-    parser.add_argument('output_file',help='Path to the png output file')
-    args=parser.parse_args()
+    with open(args.credentials) as credentials_file:
+        credentials = credentials_file.read()
+        user, password = credentials.split(':')
 
-    credentials=open(args.oph_credentials,'r').read()
+    with open(args.json_input) as json_file:
+        json_input = json_file.read()
 
-    # this can be better refined
-    cred=credentials.split(':')    
-    user=cred[0]
-    pwd=cred[1]
-
-    json_input=open(args.json_input,'r')
-
-    output_pointers=grab_workflow(json_input.read())
-    
-    exit_code=get_png(output_pointers,user,pwd,args.output_file)
-    sys.exit(exit_code)
-    
-
-
-
-
-
+    workflow_details = get_workflow_details(json_input, args.ophidia_step)
+    exit(get_png(workflow_details, user, password, args.png_name, args.output_file))
