@@ -15,7 +15,9 @@ def get_png(workflow_details, user, password, png_name, output_path):
     Given base url, username and password,
     provides the output file
     """
-    base_url = workflow_details['base_url'].replace('http', 'https')
+    base_url = workflow_details['base_url']
+    if not base_url.startswith('https'):
+        base_url = base_url.replace('http', 'https')
     session_id = workflow_details['session']
     workflow_id = workflow_details['workflow_id']
     png_url = base_url + '/sessions.php/' + session_id + "/export/misc/" + workflow_id + '/' + png_name
